@@ -14,18 +14,17 @@ import java.time.LocalDateTime;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "category_id")
     private Long categoryId;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Getters, Setters, Constructors
 
-    public Category(Long categoryId, LocalDateTime createdAt, String name) {
-        this.categoryId = categoryId;
-        this.createdAt = createdAt;
+    public Category( String name) {
         this.name = name;
     }
 

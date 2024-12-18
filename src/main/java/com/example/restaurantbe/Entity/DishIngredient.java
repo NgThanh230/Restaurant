@@ -13,27 +13,30 @@ import java.math.BigDecimal;
 public class DishIngredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "dish_ingredient_id")
     private Long dishIngredientId;
 
     @ManyToOne
-    @JoinColumn(name = "dish_id")
+    @JoinColumn(name = "dish_id", referencedColumnName = "dish_id", nullable = false)
     private Dish dish;
 
     @ManyToOne
-    @JoinColumn(name = "ingredient_id")
+    @JoinColumn(name = "ingredient_id", referencedColumnName = "ingredient_id", nullable = false)
     private Ingredient ingredient;
 
-    private BigDecimal requiredQuantity; // Số lượng nguyên liệu cần
+    @Column(name = "required_quantity", nullable = false)
+    private BigDecimal requiredQuantity;
+
+    @Column(name = "unit", nullable = false)
     private String unit;
 
-    // Getters, Setters, Constructors
 
-    public DishIngredient(BigDecimal requiredQuantity, Long dishIngredientId, Dish dish, Ingredient ingredient, String unit) {
-        this.requiredQuantity = requiredQuantity;
+    public DishIngredient(Long dishIngredientId, String unit, Ingredient ingredient, Dish dish, BigDecimal requiredQuantity) {
         this.dishIngredientId = dishIngredientId;
-        this.dish = dish;
-        this.ingredient = ingredient;
         this.unit = unit;
+        this.ingredient = ingredient;
+        this.dish = dish;
+        this.requiredQuantity = requiredQuantity;
     }
 
     public DishIngredient() {

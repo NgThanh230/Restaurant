@@ -10,107 +10,48 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "dishes")
-
+@Getter
+@Setter
 public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "dish_id")
     private Long dishId;
 
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "price", nullable = false)
     private BigDecimal price;
+
+    @Column(name = "image_url")
     private String imageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
-    private com.example.restaurantbe.Entity.Category category;
+    @JoinColumn(name = "category_id", referencedColumnName = "category_id", nullable = true)
+    private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    private User restaurant; // Liên kết với User (Role = Restaurant)
+    @JoinColumn(name = "restaurant_id", referencedColumnName = "user_id", nullable = false)
+    private User restaurant;
 
-    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Getters, Setters, Constructors
 
-
-    public Dish(Long dishId, String name, String description, BigDecimal price, String imageUrl, Category category, User restaurant, LocalDateTime createdAt) {
-        this.dishId = dishId;
+    public Dish(String name, String description, BigDecimal price, String imageUrl, Category category, User restaurant) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
         this.category = category;
         this.restaurant = restaurant;
-        this.createdAt = createdAt;
     }
 
     public Dish() {
 
-    }
-
-    public Long getDishId() {
-        return dishId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public User getRestaurant() {
-        return restaurant;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setDishId(Long dishId) {
-        this.dishId = dishId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setRestaurant(User restaurant) {
-        this.restaurant = restaurant;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

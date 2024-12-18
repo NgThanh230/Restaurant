@@ -16,32 +16,34 @@ import java.time.LocalDateTime;
 public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ingredient_id")
     private Long ingredientId;
 
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "quantity", nullable = false)
     private BigDecimal quantity;
+
+    @Column(name = "unit", nullable = false)
     private String unit;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id")
+    @JoinColumn(name = "restaurant_id", referencedColumnName = "user_id", nullable = false)
     private User restaurant;
 
-    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Getters, Setters, Constructors
-
-    public Ingredient(Long ingredientId, String name, BigDecimal quantity, LocalDateTime createdAt, String unit, User restaurant, LocalDateTime updatedAt) {
-        this.ingredientId = ingredientId;
+    public Ingredient( String name, BigDecimal quantity, LocalDateTime createdAt, String unit, User restaurant) {
         this.name = name;
         this.quantity = quantity;
         this.createdAt = createdAt;
         this.unit = unit;
         this.restaurant = restaurant;
-        this.updatedAt = updatedAt;
     }
 
     public Ingredient() {

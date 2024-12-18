@@ -21,7 +21,7 @@ public class DishService {
 
     // Lấy món ăn theo ID
     public Optional<Dish> getDishById(Long id) {
-        return dishRepository.findById(id);
+        return dishRepository.findByDishId(id);
     }
 
     // Thêm món ăn mới
@@ -31,7 +31,7 @@ public class DishService {
 
     // Cập nhật món ăn
     public Dish updateDish(Long id, Dish updatedDish) {
-        return dishRepository.findById(id).map(dish -> {
+        return dishRepository.findByDishId(id).map(dish -> {
             dish.setName(updatedDish.getName());
             dish.setDescription(updatedDish.getDescription());
             dish.setPrice(updatedDish.getPrice());

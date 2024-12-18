@@ -14,29 +14,45 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-    private String role; // Customer, Restaurant, Admin, Delivery
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+    @Column(name = "phone_number")
     private String phoneNumber;
+
+    @Column(name = "address")
     private String address;
 
-    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Getters, Setters, Constructors
+    public enum Role {
+        Customer,
+        Restaurant,
+        Admin,
+        Delivery
+    }
 
-    public User(Long userId, LocalDateTime createdAt, String phoneNumber, String address, String role, String passwordHash, String email, String name) {
-        this.userId = userId;
-        this.createdAt = createdAt;
+    public User( String name, String email, String passwordHash, Role role, String phoneNumber, String address) {
+        this.name = name;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.role = role;
-        this.passwordHash = passwordHash;
-        this.email = email;
-        this.name = name;
     }
 
     public User() {

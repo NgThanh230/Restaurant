@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Integer> {
-    Optional<Dish> findById(Long id);
+    Optional<Dish> findByDishId(Long dishId);
 }

@@ -15,29 +15,40 @@ import java.time.LocalDateTime;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User customer;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
+    @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
-    private String orderStatus; // Pending, Preparing, Delivering, Completed, Cancelled
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
+
+    @Column(name = "delivery_address")
     private String deliveryAddress;
 
-    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Getters, Setters, Constructors
+    public enum OrderStatus {
+        PENDING,
+        PREPARING,
+        DELIVERING,
+        COMPLETED,
+        CANCELLED
+    }
 
-    public Order(Long orderId, User customer, BigDecimal totalPrice, String orderStatus, String deliveryAddress, LocalDateTime createdAt) {
-        this.orderId = orderId;
-        this.customer = customer;
+
+    public Order( User user, BigDecimal totalPrice, String deliveryAddress, OrderStatus orderStatus) {
+        this.user = user;
         this.totalPrice = totalPrice;
-        this.orderStatus = orderStatus;
         this.deliveryAddress = deliveryAddress;
-        this.createdAt = createdAt;
+        this.orderStatus = orderStatus;
     }
 
     public Order() {
