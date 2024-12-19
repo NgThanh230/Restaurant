@@ -28,7 +28,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role;
+    private Role role ;
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -38,6 +38,11 @@ public class User {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
+    }
 
     public enum Role {
         Customer,

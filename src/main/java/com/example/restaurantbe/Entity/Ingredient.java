@@ -37,7 +37,15 @@ public class Ingredient {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
+    
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
+    }
     public Ingredient( String name, BigDecimal quantity, LocalDateTime createdAt, String unit, User restaurant) {
         this.name = name;
         this.quantity = quantity;

@@ -23,6 +23,10 @@ public class Category {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
+    }
 
     public Category( String name) {
         this.name = name;

@@ -1,11 +1,13 @@
 package com.example.restaurantbe.Controller;
 
+import com.example.restaurantbe.DTO.DishRequest;
 import com.example.restaurantbe.Entity.Dish;
 import com.example.restaurantbe.Service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -31,8 +33,18 @@ public class DishController {
 
     // API: Thêm món ăn mới
     @PostMapping
-    public Dish createDish(@RequestBody Dish dish) {
-        return dishService.createDish(dish);
+    public ResponseEntity<Dish> createDish( @RequestBody DishRequest dishRequest) {
+        // Gọi service để tạo món ăn
+        Dish newDish = dishService.createDish(
+                dishRequest.getName(),
+                dishRequest.getDescription(),
+                dishRequest.getPrice(),
+                dishRequest.getImageUrl(),
+                dishRequest.getCategoryId(),
+                dishRequest.getRestaurantId()
+        );
+
+        return ResponseEntity.ok(newDish);
     }
 
     // API: Cập nhật món ăn
