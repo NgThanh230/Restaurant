@@ -62,6 +62,6 @@ public class DishService {
 
     // Xóa món ăn
     public void deleteDish(Long id) {
-        dishRepository.deleteById(Math.toIntExact(id));
+        dishRepository.deleteById(id);
     }
 }

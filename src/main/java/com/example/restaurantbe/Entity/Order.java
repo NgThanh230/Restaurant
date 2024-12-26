@@ -40,11 +40,11 @@ public class Order {
         this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
     }
     public enum OrderStatus {
-        PENDING,
-        PREPARING,
-        DELIVERING,
-        COMPLETED,
-        CANCELLED
+        Pending,
+        Preparing,
+        Delivering,
+        Completed,
+        Cancelled
     }
 
 

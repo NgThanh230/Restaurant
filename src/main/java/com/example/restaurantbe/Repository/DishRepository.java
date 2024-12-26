@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface DishRepository extends JpaRepository<Dish, Integer> {
+public interface DishRepository extends JpaRepository<Dish, Long> {
     Optional<Dish> findByDishId(Long dishId);
 }
