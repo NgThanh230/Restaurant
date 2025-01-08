@@ -35,7 +35,8 @@ public class DishService {
     }
 
     // Thêm món ăn mới
-    public Dish createDish(String name, String description, BigDecimal price, String imageUrl, Long categoryId, Long restaurantId) {
+    public Dish createDish(String name, String description, BigDecimal price, String imageUrl, Long categoryId,
+            Long restaurantId) {
         // Kiểm tra xem category có tồn tại không
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category Không Tồn Tại"));

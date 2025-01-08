@@ -3,6 +3,8 @@ package com.example.restaurantbe.Controller;
 import com.example.restaurantbe.DTO.UserLoginDto;
 import com.example.restaurantbe.DTO.UserRegisterDto;
 import com.example.restaurantbe.Service.UserService;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Object login(@RequestBody UserLoginDto userLoginDto) {
+    public Object login(@RequestBody UserLoginDto userLoginDto) throws BadRequestException {
         return userService.login(userLoginDto);
     }
 }

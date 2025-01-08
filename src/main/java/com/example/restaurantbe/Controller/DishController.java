@@ -5,6 +5,7 @@ import com.example.restaurantbe.Entity.Dish;
 import com.example.restaurantbe.Service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ public class DishController {
 
     // API: Lấy tất cả món ăn
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Customer')")
     public List<Dish> getAllDishes() {
         return dishService.getAllDishes();
     }
@@ -33,7 +35,7 @@ public class DishController {
 
     // API: Thêm món ăn mới
     @PostMapping
-    public ResponseEntity<Dish> createDish( @RequestBody DishRequest dishRequest) {
+    public ResponseEntity<Dish> createDish(@RequestBody DishRequest dishRequest) {
         // Gọi service để tạo món ăn
         Dish newDish = dishService.createDish(
                 dishRequest.getName(),
@@ -41,8 +43,7 @@ public class DishController {
                 dishRequest.getPrice(),
                 dishRequest.getImageUrl(),
                 dishRequest.getCategoryId(),
-                dishRequest.getRestaurantId()
-        );
+                dishRequest.getRestaurantId());
 
         return ResponseEntity.ok(newDish);
     }

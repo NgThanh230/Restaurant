@@ -1,15 +1,17 @@
 package com.example.restaurantbe.Service;
 
-
+import com.example.restaurantbe.Auth.JwtUtils;
 import com.example.restaurantbe.DTO.UserLoginDto;
+import com.example.restaurantbe.DTO.GetUserLogin;
+import com.example.restaurantbe.DTO.LoginResponse;
 import com.example.restaurantbe.DTO.UserRegisterDto;
 import com.example.restaurantbe.Entity.User;
 import com.example.restaurantbe.Repository.UserRepository;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -19,6 +21,16 @@ public class UserService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    private final JwtUtils jwtUtils;
+
+    private final AuthenticationService authenticationService;
+
+    public UserService(JwtUtils jwtUtils, AuthenticationService authenticationService) {
+        this.jwtUtils = jwtUtils;
+        this.authenticationService = authenticationService;
+    }
+
     public String register(UserRegisterDto userRegisterDto) {
         // Kiểm tra email đã tồn tại
         if (userRepository.findByEmail(userRegisterDto.getEmail()).isPresent()) {
@@ -41,14 +53,17 @@ public class UserService {
         userRepository.save(user);
         return "Đăng ký thành công!";
     }
-    public Object login(UserLoginDto userLoginDto) {
-        Optional<User> userOpt = userRepository.findByEmail(userLoginDto.getEmail());
 
-        if (userOpt.isEmpty() ||
-                !passwordEncoder.matches(userLoginDto.getPassword(), userOpt.get().getPasswordHash())) {
-            return ("Email hoặc mật khẩu không đúng.");
+    public LoginResponse login(UserLoginDto userLoginDto) throws BadRequestException {
+        User authenticatedUser = authenticationService.authenticate(userLoginDto);
+
+        if (!passwordEncoder.matches(userLoginDto.getPassword(), authenticatedUser.getPassword())) {
+            throw new BadRequestException("Email hoặc mật khẩu không đúng.");
         }
 
-        return userOpt.get();
+        String jwt = jwtUtils.generateToken(authenticatedUser);
+        GetUserLogin userLogin = new GetUserLogin(authenticatedUser);
+
+        return new LoginResponse(jwt, userLogin);
     }
 }
