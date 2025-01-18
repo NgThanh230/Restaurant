@@ -20,7 +20,6 @@ public class DishController {
 
     // API: Lấy tất cả món ăn
     @GetMapping
-    @PreAuthorize("hasAnyRole('Admin', 'Customer')")
     public List<Dish> getAllDishes() {
         return dishService.getAllDishes();
     }

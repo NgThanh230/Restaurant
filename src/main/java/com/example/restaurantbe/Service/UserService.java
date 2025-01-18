@@ -8,8 +8,10 @@ import com.example.restaurantbe.DTO.UserRegisterDto;
 import com.example.restaurantbe.Entity.User;
 import com.example.restaurantbe.Repository.UserRepository;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
