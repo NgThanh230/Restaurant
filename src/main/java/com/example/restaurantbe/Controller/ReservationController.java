@@ -1,8 +1,11 @@
 package com.example.restaurantbe.Controller;
 
+import com.example.restaurantbe.DTO.ReservationRequestDto;
 import com.example.restaurantbe.Entity.Reservation;
 import com.example.restaurantbe.Service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,24 +18,36 @@ public class ReservationController {
     private ReservationService reservationService;
 
     @GetMapping
-    public List<Reservation> getAllReservations() {
-        return reservationService.getAllReservations();
+    public ResponseEntity<List<Reservation>> getAllReservations() {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
 
     @PostMapping
-    public Reservation createReservation(@RequestBody Reservation reservation) {
-        return reservationService.saveReservation(reservation);
+    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationRequestDto requestDto) {
+        Reservation createdReservation = reservationService.createReservation(requestDto);
+        return new ResponseEntity<>(createdReservation, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public Reservation getReservationById(@PathVariable Integer id) {
-        return reservationService.getReservationById(id);
+    public ResponseEntity<Reservation> getReservationById(@PathVariable Integer id) {
+        Reservation reservation = reservationService.getReservationById(id);
+        return new ResponseEntity<>(reservation, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReservation(@PathVariable Integer id) {
-        reservationService.deleteReservation(id);
+    public ResponseEntity<Void> cancelReservation(@PathVariable Integer id) {
+        reservationService.cancelReservation(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Reservation> updateReservationStatus(
+            @PathVariable Integer id,
+            @RequestParam String status) {
+        Reservation updatedReservation = reservationService.updateReservationStatus(id, status);
+        return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
+    }
+    /*
     @GetMapping("/byCustomer/{customerName}")
     public List<Reservation> getReservationsByCustomerName(@PathVariable String customerName) {
         return reservationService.getReservationsByCustomerName(customerName);
@@ -41,4 +56,6 @@ public class ReservationController {
     public List<Reservation> getReservationsByTableNumber(@PathVariable String tableNumber) {
         return reservationService.getReservationsByTableNumber(tableNumber);
     }
+
+     */
 }

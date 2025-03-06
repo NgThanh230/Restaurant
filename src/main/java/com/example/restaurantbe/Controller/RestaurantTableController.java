@@ -19,17 +19,17 @@ public class RestaurantTableController {
     public List<RestaurantTable> getAllTables() {
         return tableService.getAllTables();
     }
-    @PreAuthorize("hasAnyRole('Admin', 'Restaurant')")
+
     @PostMapping
     public RestaurantTable createTable(@RequestBody RestaurantTable table) {
         return tableService.saveTable(table);
     }
-    @PreAuthorize("hasAnyRole('Admin', 'Restaurant')")
+
     @GetMapping("/{id}")
     public RestaurantTable getTableById(@PathVariable Integer id) {
         return tableService.getTableById(id);
     }
-    @PreAuthorize("hasAnyRole('Admin', 'Restaurant')")
+
     @DeleteMapping("/{id}")
     public void deleteTable(@PathVariable Integer id) {
         tableService.deleteTable(id);
