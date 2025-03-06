@@ -24,7 +24,9 @@ public class RestaurantTableService {
     public RestaurantTable saveTable(RestaurantTable table) {
         return tableRepository.save(table);
     }
-
+    public List<RestaurantTable> getAvailableTables() {
+        return tableRepository.findByStatus("Available");
+    }
     public void deleteTable(Integer id) {
         tableRepository.deleteById(id);
     }

@@ -8,4 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantTableRepository extends JpaRepository<RestaurantTable, Integer> {
+    List<RestaurantTable> findByStatus(String available);
 }

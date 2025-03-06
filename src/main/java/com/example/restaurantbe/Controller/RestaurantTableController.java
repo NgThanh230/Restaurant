@@ -29,6 +29,10 @@ public class RestaurantTableController {
     public RestaurantTable getTableById(@PathVariable Integer id) {
         return tableService.getTableById(id);
     }
+    @GetMapping("/status/available")
+    public List<RestaurantTable> getAvailableTables() {
+        return tableService.getAvailableTables();
+    }
 
     @DeleteMapping("/{id}")
     public void deleteTable(@PathVariable Integer id) {

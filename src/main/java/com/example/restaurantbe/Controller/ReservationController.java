@@ -3,6 +3,7 @@ package com.example.restaurantbe.Controller;
 import com.example.restaurantbe.DTO.ReservationRequestDto;
 import com.example.restaurantbe.Entity.Reservation;
 import com.example.restaurantbe.Service.ReservationService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +35,7 @@ public class ReservationController {
         Reservation reservation = reservationService.getReservationById(id);
         return new ResponseEntity<>(reservation, HttpStatus.OK);
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Integer id) {
-        reservationService.cancelReservation(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+    //hủy đặt bàn
     @PatchMapping("/{id}/status")
     public ResponseEntity<Reservation> updateReservationStatus(
             @PathVariable Integer id,
@@ -47,15 +43,20 @@ public class ReservationController {
         Reservation updatedReservation = reservationService.updateReservationStatus(id, status);
         return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
     }
-    /*
-    @GetMapping("/byCustomer/{customerName}")
-    public List<Reservation> getReservationsByCustomerName(@PathVariable String customerName) {
-        return reservationService.getReservationsByCustomerName(customerName);
+    //xác nhận đặt bàn
+    @PatchMapping("/{id}/confirm")
+    public ResponseEntity<Reservation> confirmReservation(@PathVariable Integer id) {
+        Reservation updatedReservation = reservationService.confirmReservation(id);
+        return ResponseEntity.ok(updatedReservation);
     }
-    @GetMapping("/byTable/{tableNumber}")
-    public List<Reservation> getReservationsByTableNumber(@PathVariable String tableNumber) {
-        return reservationService.getReservationsByTableNumber(tableNumber);
+    @PatchMapping("/{id}/check-in")
+    public ResponseEntity<Reservation> checkInCustomer(@PathVariable Integer id) {
+        try {
+            Reservation updatedReservation = reservationService.checkInCustomer(id);
+            return ResponseEntity.ok(updatedReservation);
+        } catch (EntityNotFoundException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
-     */
 }

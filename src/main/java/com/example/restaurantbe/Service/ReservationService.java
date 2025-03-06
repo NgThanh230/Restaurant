@@ -10,6 +10,7 @@ import com.example.restaurantbe.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Table;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -63,14 +64,63 @@ public class ReservationService {
 
         return reservationRepository.save(reservation);
     }
-    public Reservation updateReservationStatus(Integer id, String newStatus) {
-        Reservation reservation = getReservationById(id);
-        reservation.setStatus(newStatus);
+    public Reservation updateReservationStatus(Integer id, String status) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
+
+        reservation.setStatus(status);
+        if ("Cancelled".equalsIgnoreCase(status)) {
+            RestaurantTable table = reservation.getTable();
+            if (table != null) {
+                table.setStatus("Available");
+                tableRepository.save(table);
+            }
+        }
         return reservationRepository.save(reservation);
     }
-    public void cancelReservation(Integer id) {
-        Reservation reservation = getReservationById(id);
-        reservation.setStatus("Cancelled");
-        reservationRepository.save(reservation);
+    public Reservation confirmReservation(Integer id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
+
+        if (!"Pending".equals(reservation.getStatus())) {
+            throw new IllegalStateException("Reservation must be in 'Pending' status to be confirmed.");
+        }
+
+        reservation.setStatus("Confirmed");
+        return reservationRepository.save(reservation);
+    }
+
+    public Reservation checkInCustomer(Integer id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
+
+        if (!"Confirmed".equals(reservation.getStatus())) {
+            throw new IllegalStateException("Reservation must be in 'Confirmed' status to check-in.");
+        }
+
+        reservation.setStatus("Seated"); // Khách đã ngồi vào bàn
+        return reservationRepository.save(reservation);
+    }
+
+    @Scheduled(fixedRate = 300000) // 300,000ms = 5 phút
+    public void checkNoShowReservations() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime thresholdTime = now.minusMinutes(15); // Quá 15 phút so với thời gian đặt bàn
+
+        List<Reservation> expiredReservations = reservationRepository.findByStatusAndReservationDateBefore("Confirmed", thresholdTime);
+
+        for (Reservation reservation : expiredReservations) {
+            // Cập nhật trạng thái đặt bàn thành "No-Show"
+            reservation.setStatus("No-Show");
+
+            // Giải phóng bàn (trạng thái "Available")
+            RestaurantTable table = reservation.getTable();
+            if (table != null) {
+                table.setStatus("Available");
+                tableRepository.save(table);
+            }
+
+            reservationRepository.save(reservation);
+        }
     }
 }
