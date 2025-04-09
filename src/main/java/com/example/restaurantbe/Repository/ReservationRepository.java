@@ -14,10 +14,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
  List<Reservation> findByTable_TableNumber(String tableNumber);
 
  List<Reservation> findByStatusAndReservationDateBefore(String status, LocalDateTime time);
- @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
-         "WHERE r.table = :table " +
-         "AND (:startTime < r.endTime AND :endTime > r.startTime)")
- boolean isTimeConflict(@Param("table") RestaurantTable table,
+ @Query("""
+    SELECT COUNT(r) > 0 FROM Reservation r
+    WHERE r.table.tableId = :tableId
+      AND (:startTime < r.endTime AND :endTime > r.startTime)
+""")
+ boolean isTimeConflict(@Param("tableId") Long tableId,
                         @Param("startTime") LocalDateTime startTime,
                         @Param("endTime") LocalDateTime endTime);
+
 }

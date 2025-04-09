@@ -14,8 +14,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reservationId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
     @Column(length = 100)
     private String guestName;
@@ -33,10 +33,10 @@ public class Reservation {
     @Column(nullable = false)
     private LocalDateTime reservationDate;
 
-    @Column(nullable = false)
+    @Column(name = "start_time" ,nullable = false)
     private LocalDateTime startTime;
 
-    @Column(nullable = false)
+    @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
     @Column(nullable = false, length = 20)

@@ -12,6 +12,8 @@ import jakarta.persistence.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,7 +52,7 @@ public class ReservationService {
         LocalDateTime endTime = startTime.plusMinutes(duration);
 
         // Kiểm tra trùng giờ
-        boolean isConflict = reservationRepository.isTimeConflict(table, startTime, endTime);
+        boolean isConflict = reservationRepository.isTimeConflict(Long.valueOf(table.getTableId()), startTime, endTime);
         if (isConflict) {
             throw new IllegalStateException("This table is already reserved at the selected time.");
         }
@@ -71,6 +73,7 @@ public class ReservationService {
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setTable(table);
+        reservation.setReservationDate(LocalDateTime.now());
         reservation.setStartTime(startTime);
         reservation.setEndTime(endTime);
         reservation.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : "Pending");
