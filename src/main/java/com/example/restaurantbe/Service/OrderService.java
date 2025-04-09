@@ -59,7 +59,7 @@ public class OrderService {
         BigDecimal totalPrice = BigDecimal.ZERO;
 
         for (OrderItemRequest item : items) {
-            Dish dish = dishRepository.findById(item.getDishId())
+            Dish dish = dishRepository.findByDishId(item.getDishId())
                     .orElseThrow(() -> new RuntimeException("Dish not found"));
             totalPrice = totalPrice.add(dish.getPrice().multiply(new BigDecimal(item.getQuantity())));
         }

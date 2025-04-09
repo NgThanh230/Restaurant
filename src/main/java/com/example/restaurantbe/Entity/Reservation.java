@@ -17,6 +17,14 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @Column(length = 100)
+    private String guestName;
+
+    @Column(length = 20)
+    private String guestPhone;
+
+    @Column(length = 100)
+    private String guestEmail;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "table_Id", nullable = false)
@@ -24,6 +32,12 @@ public class Reservation {
 
     @Column(nullable = false)
     private LocalDateTime reservationDate;
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
 
     @Column(nullable = false, length = 20)
     private String status = "Pending"; // Default: Pending

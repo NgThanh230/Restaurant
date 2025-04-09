@@ -12,7 +12,6 @@ import jakarta.persistence.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,27 +42,50 @@ public class ReservationService {
         return reservationRepository.findByTable_TableNumber(tableNumber);
     }
     public Reservation createReservation(ReservationRequestDto requestDto) {
-        User user = userRepository.findById(Long.valueOf(requestDto.getUserId()))
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + requestDto.getUserId()));
-
         RestaurantTable table = tableRepository.findById(requestDto.getTableId())
                 .orElseThrow(() -> new EntityNotFoundException("Table not found with id: " + requestDto.getTableId()));
-        if ("Reserved".equalsIgnoreCase(table.getStatus())) {
-            throw new IllegalStateException("Table is already reserved!");
+
+        LocalDateTime startTime = requestDto.getStartTime();
+        Integer duration = requestDto.getDurationMinutes() != null ? requestDto.getDurationMinutes() : 90;
+        LocalDateTime endTime = startTime.plusMinutes(duration);
+
+        // Kiểm tra trùng giờ
+        boolean isConflict = reservationRepository.isTimeConflict(table, startTime, endTime);
+        if (isConflict) {
+            throw new IllegalStateException("This table is already reserved at the selected time.");
         }
 
-        // Cập nhật trạng thái bàn thành "Reserved"
+        // Nếu có user → lấy user, không thì khách vãng lai
+        User user = null;
+        if (requestDto.getUserId() != null) {
+            user = userRepository.findById(requestDto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        }
+
+        // Cập nhật trạng thái bàn
         table.setStatus("Reserved");
+        table.setReservedTime(startTime); // optional
         tableRepository.save(table);
+
+        // Tạo reservation
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setTable(table);
-        reservation.setReservationDate(LocalDateTime.now());
+        reservation.setStartTime(startTime);
+        reservation.setEndTime(endTime);
         reservation.setStatus(requestDto.getStatus() != null ? requestDto.getStatus() : "Pending");
         reservation.setNotes(requestDto.getNotes());
 
+        // Nếu là khách vãng lai
+        if (user == null) {
+            reservation.setGuestName(requestDto.getGuestName());
+            reservation.setGuestPhone(requestDto.getGuestPhone());
+            reservation.setGuestEmail(requestDto.getGuestEmail());
+        }
+
         return reservationRepository.save(reservation);
     }
+
     public Reservation updateReservationStatus(Integer id, String status) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
@@ -102,7 +124,7 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    @Scheduled(fixedRate = 300000) // 300,000ms = 5 phút
+    @Scheduled(fixedRate = 300000)
     public void checkNoShowReservations() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime thresholdTime = now.minusMinutes(15); // Quá 15 phút so với thời gian đặt bàn

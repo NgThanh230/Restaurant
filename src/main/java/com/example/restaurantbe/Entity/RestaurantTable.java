@@ -3,6 +3,8 @@ package com.example.restaurantbe.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "Restaurant_Table") // Đặt tên bảng trong cơ sở dữ liệu
@@ -17,7 +19,8 @@ public class RestaurantTable {
 
     @Column(nullable = false)
     private Integer capacity;
-
+    @Column
+    private LocalDateTime reservedTime;
     @Column(nullable = false, length = 20)
     private String status = "Available"; // Default: Available
 }
