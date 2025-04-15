@@ -18,19 +18,22 @@ public class Order {
     @Column(name = "order_id")
     private Long orderId;
 
+    @Column(name = "table_id")
+    private Long tableId;
+
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true)
     private User user;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
+    @Column(name = "note")
+    private String note;
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
-    @Column(name = "delivery_address")
-    private String deliveryAddress;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -42,16 +45,16 @@ public class Order {
     public enum OrderStatus {
         Pending,
         Preparing,
-        Delivering,
         Completed,
         Cancelled
     }
 
-
-    public Order( User user, BigDecimal totalPrice, String deliveryAddress, OrderStatus orderStatus) {
+    public Order(Long orderId, Long tableId, User user, BigDecimal totalPrice, String note, OrderStatus orderStatus) {
+        this.orderId = orderId;
+        this.tableId = tableId;
         this.user = user;
         this.totalPrice = totalPrice;
-        this.deliveryAddress = deliveryAddress;
+        this.note = note;
         this.orderStatus = orderStatus;
     }
 

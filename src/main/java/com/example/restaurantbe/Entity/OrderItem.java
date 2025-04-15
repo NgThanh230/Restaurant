@@ -30,6 +30,9 @@ public class OrderItem {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @Column(name = "note")
+    private String note;
+    
     public OrderItem( Order order, Dish dish, Integer quantity, BigDecimal price) {
         this.order = order;
         this.dish = dish;

@@ -28,10 +28,6 @@ public class Ingredient {
     @Column(name = "unit", nullable = false)
     private String unit;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "user_id", nullable = false)
-    private User restaurant;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -46,12 +42,12 @@ public class Ingredient {
     public void prePersist() {
         this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
     }
-    public Ingredient( String name, BigDecimal quantity, LocalDateTime createdAt, String unit, User restaurant) {
+    public Ingredient( String name, BigDecimal quantity, LocalDateTime createdAt, String unit) {
         this.name = name;
         this.quantity = quantity;
         this.createdAt = createdAt;
         this.unit = unit;
-        this.restaurant = restaurant;
+
     }
 
     public Ingredient() {

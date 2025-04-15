@@ -34,10 +34,6 @@ public class Dish {
     @JoinColumn(name = "category_id", referencedColumnName = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "user_id", nullable = false)
-    private User restaurant;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -45,13 +41,13 @@ public class Dish {
     public void prePersist() {
         this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định
     }
-    public Dish(String name, String description, BigDecimal price, String imageUrl, Category category, User restaurant) {
+    public Dish(String name, String description, BigDecimal price, String imageUrl, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
         this.category = category;
-        this.restaurant = restaurant;
+
     }
 
     public Dish() {

@@ -40,11 +40,8 @@ public class DishService {
         // Kiểm tra xem category có tồn tại không
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category Không Tồn Tại"));
-        // Kiểm tra xem user (restaurant) có tồn tại không
-        User restaurant = userRepository.findById(restaurantId)
-                .orElseThrow(() -> new RuntimeException("Restaurant Không Tồn Tại"));
         // Tạo món ăn mới với category và restaurant đã tồn tại
-        Dish dish = new Dish(name, description, price, imageUrl, category, restaurant);
+        Dish dish = new Dish(name, description, price, imageUrl, category);
         return dishRepository.save(dish);
     }
 
@@ -56,7 +53,6 @@ public class DishService {
             dish.setPrice(updatedDish.getPrice());
             dish.setImageUrl(updatedDish.getImageUrl());
             dish.setCategory(updatedDish.getCategory());
-            dish.setRestaurant(updatedDish.getRestaurant());
             return dishRepository.save(dish);
         }).orElseThrow(() -> new RuntimeException("Dish not found with id " + id));
     }

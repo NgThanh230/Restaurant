@@ -36,8 +36,8 @@ public class OrderService {
 
         // Tạo đối tượng Order
         Order order = new Order();
+        order.setTableId(orderRequest.getTableId());
         order.setUser(user);
-        order.setDeliveryAddress(orderRequest.getDeliveryAddress());
         order.setOrderStatus(Order.OrderStatus.Pending);
         order.setCreatedAt(LocalDateTime.now());
 
@@ -66,17 +66,17 @@ public class OrderService {
 
         return totalPrice;
     }
-    public List<Order> getOrdersByUserId(Long userId) {
-        return orderRepository.findByUser_UserId(userId);
-    }
+//    public List<Order> getOrdersByUserId(Long userId) {
+//        return orderRepository.findByUser_UserId(userId);
+//    }
     public OrderResponse getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         User user = order.getUser();
-        return new OrderResponse(order.getOrderId(), user.getUserId(), user.getName(),
+        return new OrderResponse(order.getOrderId(), order.getTableId(), user.getName(),
                 order.getTotalPrice(), order.getOrderStatus().toString(),
-                order.getDeliveryAddress(), order.getCreatedAt());
+                 order.getCreatedAt());
     }
 
     public void deleteOrder(Long id) {
