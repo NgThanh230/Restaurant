@@ -2,7 +2,9 @@ package com.example.restaurantbe.Controller;
 
 import com.example.restaurantbe.DTO.ReservationRequestDto;
 import com.example.restaurantbe.Entity.Reservation;
+import com.example.restaurantbe.Entity.User;
 import com.example.restaurantbe.Service.ReservationService;
+import com.example.restaurantbe.Service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +19,6 @@ public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
-
     @GetMapping
     public ResponseEntity<List<Reservation>> getAllReservations() {
         List<Reservation> reservations = reservationService.getAllReservations();
@@ -25,9 +26,13 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationRequestDto requestDto) {
-        Reservation createdReservation = reservationService.createReservation(requestDto);
-        return new ResponseEntity<>(createdReservation, HttpStatus.CREATED);
+    public ResponseEntity<?> createReservation(@RequestBody ReservationRequestDto requestDto, @RequestParam(required = false) Long userId) {
+        if (userId != null) {
+            requestDto.setUserId(userId);
+        }
+
+        Reservation reservation = reservationService.createReservation(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
     @GetMapping("/{id}")
@@ -44,9 +49,9 @@ public class ReservationController {
         return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
     }
     //xác nhận đặt bàn
-    @PatchMapping("/{id}/confirm")
-    public ResponseEntity<Reservation> confirmReservation(@PathVariable Integer id) {
-        Reservation updatedReservation = reservationService.confirmReservation(id);
+    @PutMapping("/confirm/{reservationId}")
+    public ResponseEntity<Reservation> confirmReservation(@PathVariable Integer reservationId) {
+        Reservation updatedReservation = reservationService.confirmReservation(reservationId);
         return ResponseEntity.ok(updatedReservation);
     }
     @PatchMapping("/{id}/check-in")

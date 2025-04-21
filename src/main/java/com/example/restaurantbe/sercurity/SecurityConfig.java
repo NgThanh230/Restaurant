@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tables/**").permitAll()
                         .requestMatchers("/api/payment/**").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
+                        .requestMatchers("/api/paypal/**").permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest()
                         .authenticated())

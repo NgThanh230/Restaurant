@@ -24,7 +24,7 @@ public class OrderItemService {
     public void saveOrderItems(Order order, List<OrderItemRequest> items) {
         for (OrderItemRequest item : items) {
             Dish dish = dishRepository.findById(item.getDishId())
-                    .orElseThrow(() -> new RuntimeException("Dish not found"));
+                    .orElseThrow(() -> new RuntimeException("Không Tìm Thấy Món Ăn"));
             BigDecimal itemPrice = dish.getPrice().multiply(new BigDecimal(item.getQuantity()));
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);

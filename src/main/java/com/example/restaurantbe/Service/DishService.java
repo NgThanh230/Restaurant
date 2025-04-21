@@ -54,7 +54,7 @@ public class DishService {
             dish.setImageUrl(updatedDish.getImageUrl());
             dish.setCategory(updatedDish.getCategory());
             return dishRepository.save(dish);
-        }).orElseThrow(() -> new RuntimeException("Dish not found with id " + id));
+        }).orElseThrow(() -> new RuntimeException("Không Tìm Thấy Món ăn với ID " + id));
     }
 
     // Xóa món ăn

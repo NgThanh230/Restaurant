@@ -2,46 +2,46 @@ package com.example.restaurantbe.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "reservations")
 @Data
-@Table(name = "Reservation")
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer reservationId;
+    private Integer id;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "user_id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
-    @Column(length = 100)
-    private String guestName;
 
-    @Column(length = 20)
-    private String guestPhone;
-
-    @Column(length = 100)
-    private String guestEmail;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "table_Id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "table_id")
     private RestaurantTable table;
 
-    @Column(nullable = false)
-    private LocalDateTime reservationDate;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime; // thời điểm khách sẽ đến
 
-    @Column(name = "start_time" ,nullable = false)
-    private LocalDateTime startTime;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt; // thời điểm tạo đặt bàn
 
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
+    @Column(name = "guest_name")
+    private String guestName;
 
-    @Column(nullable = false, length = 20)
-    private String status = "Pending"; // Default: Pending
+    @Column(name = "guest_phone")
+    private String guestPhone;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "number_of_guests")
+    private Integer numberOfGuests;
+
+    @Column(name = "notes")
     private String notes;
+
+    @Column(name = "status")
+    private String status; // Pending / Confirmed / Cancelled
 }

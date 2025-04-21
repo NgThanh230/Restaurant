@@ -9,6 +9,7 @@ import com.example.restaurantbe.Entity.User;
 import com.example.restaurantbe.Repository.UserRepository;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,10 @@ public class UserService {
     public UserService(JwtUtils jwtUtils, AuthenticationService authenticationService) {
         this.jwtUtils = jwtUtils;
         this.authenticationService = authenticationService;
+    }
+    public User get(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
     }
 
     public String register(UserRegisterDto userRegisterDto) {
