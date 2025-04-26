@@ -21,9 +21,6 @@ public class DishService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
     // Lấy tất cả món ăn
     public List<Dish> getAllDishes() {
         return dishRepository.findAll();
@@ -35,12 +32,10 @@ public class DishService {
     }
 
     // Thêm món ăn mới
-    public Dish createDish(String name, String description, BigDecimal price, String imageUrl, Long categoryId,
-            Long restaurantId) {
+    public Dish createDish(String name, String description, BigDecimal price, String imageUrl, Long categoryId) {
         // Kiểm tra xem category có tồn tại không
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category Không Tồn Tại"));
-        // Tạo món ăn mới với category và restaurant đã tồn tại
         Dish dish = new Dish(name, description, price, imageUrl, category);
         return dishRepository.save(dish);
     }

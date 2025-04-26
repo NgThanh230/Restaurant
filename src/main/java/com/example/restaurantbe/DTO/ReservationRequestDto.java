@@ -8,7 +8,7 @@ public class ReservationRequestDto {
     private Long userId;
     private String guestName;
     private String guestPhone;
-    private Integer numberOfPeople;
+    private Integer numberOfGuests;
     private LocalDateTime startTime;
     private String notes;
 }

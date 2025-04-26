@@ -23,6 +23,8 @@ public class Category {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "image_url")
+    private String imageUrl;
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now(); // Gán giá trị mặc định

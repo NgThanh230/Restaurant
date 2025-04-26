@@ -35,7 +35,9 @@ public class PayPalController {
         // Tìm đơn hàng trong database
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order không tồn tại với ID: " + orderId));
-
+        if (order.getOrderStatus() == Order.OrderStatus.Completed) {
+            throw new IllegalStateException("Order Này Đã Được Thanh Toán");
+        }
         String accessToken = payPalConfig.getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();

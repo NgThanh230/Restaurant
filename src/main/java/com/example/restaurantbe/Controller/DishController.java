@@ -41,9 +41,7 @@ public class DishController {
                 dishRequest.getDescription(),
                 dishRequest.getPrice(),
                 dishRequest.getImageUrl(),
-                dishRequest.getCategoryId(),
-                dishRequest.getRestaurantId());
-
+                dishRequest.getCategoryId());
         return ResponseEntity.ok(newDish);
     }
 

@@ -13,8 +13,6 @@ public class DishRequest {
     private String description;
     private BigDecimal price;
     private String imageUrl;
-    private Long categoryId;   // ID của Category
-    private Long restaurantId; // ID của User (restaurant)
+    private Long categoryId;   // ID của Category// ID của User (restaurant)
 
-    // Getters and setters
 }

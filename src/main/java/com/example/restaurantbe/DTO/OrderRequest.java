@@ -8,13 +8,13 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderRequest {
-    private Long userId;
     private Long tableId;
     private List<OrderItemRequest> items;
+    private String note;
 
-    public OrderRequest(Long userId, List<OrderItemRequest> items, Long TableId) {
-        this.userId = userId;
+    public OrderRequest( List<OrderItemRequest> items, Long TableId, String note) {
         this.items = items;
         this.tableId = TableId;
+        this.note = note;
     }
 }

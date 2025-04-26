@@ -44,32 +44,22 @@ public class ReservationService {
         return reservationRepository.findByTable_TableNumber(tableNumber);
     }
     public Reservation createReservation(ReservationRequestDto requestDto) {
-        User user = null;
-        if (requestDto.getUserId() != null) {
-            user = userRepository.findById(requestDto.getUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        }
 
         Reservation reservation = new Reservation();
-        reservation.setUser(user);
         reservation.setStartTime(requestDto.getStartTime()); // thời gian khách đặt tới
-        reservation.setNumberOfGuests(requestDto.getNumberOfPeople());
+        reservation.setNumberOfGuests(requestDto.getNumberOfGuests());
         reservation.setStatus("Pending");
         reservation.setNotes(requestDto.getNotes());
-
-        if (user == null) {
-            reservation.setGuestName(requestDto.getGuestName());
-            reservation.setGuestPhone(requestDto.getGuestPhone());
-        }
-
-        return reservationRepository.save(reservation); // createdAt sẽ tự động gán
+        reservation.setGuestName(requestDto.getGuestName());
+        reservation.setGuestPhone(requestDto.getGuestPhone());
+        return reservationRepository.save(reservation);
     }
 
 
 
     public Reservation updateReservationStatus(Integer id, String status) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Bàn Đặt Không Tìm Thấy id: " + id));
 
         reservation.setStatus(status);
         if ("Cancelled".equalsIgnoreCase(status)) {
@@ -82,40 +72,41 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public Reservation confirmReservation(Integer reservationId) {
+    public Reservation confirmReservation(Integer reservationId, Long tableId) {
         // Lấy reservation từ database
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + reservationId));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đơn đặt bàn với ID: " + reservationId));
 
-        // Kiểm tra trạng thái reservation phải là "Pending" mới có thể xác nhận
+        // Kiểm tra trạng thái reservation phải là "Pending"
         if (!"Pending".equals(reservation.getStatus())) {
-            throw new IllegalStateException("Reservation must be in 'Pending' status to be confirmed.");
-        }
-        // Tìm bàn trống
-        RestaurantTable availableTable = (RestaurantTable) tableRepository.findByStatus("Available");
-        if (availableTable == null) {
-            throw new IllegalStateException("No available table for the reservation.");
+            throw new IllegalStateException("Chỉ có thể xác nhận đơn đặt bàn đang ở trạng thái 'Đang chờ'.");
         }
 
-        // Cập nhật trạng thái bàn và gán bàn cho reservation
-        availableTable.setStatus("Reserved");
-        availableTable.setReservedTime(reservation.getStartTime()); // Gán thời gian đặt
-        tableRepository.save(availableTable); // Lưu lại trạng thái bàn
+        // Lấy bàn được nhân viên chọn
+        RestaurantTable table = tableRepository.findById(Math.toIntExact(tableId))
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy bàn với ID: " + tableId));
+
+        // Kiểm tra trạng thái bàn
+        if (!"Available".equals(table.getStatus())) {
+            throw new IllegalStateException("Bàn đã được sử dụng hoặc chưa sẵn sàng.");
+        }
 
         // Gán bàn cho reservation
-        reservation.setTable(availableTable);
+        table.setStatus("Reserved");
+        table.setReservedTime(reservation.getStartTime());
+        tableRepository.save(table);
 
-        // Cập nhật trạng thái reservation
+        reservation.setTable(table);
         reservation.setStatus("Confirmed");
 
-        // Lưu và trả về reservation đã cập nhật
         return reservationRepository.save(reservation);
     }
 
 
+
     public Reservation checkInCustomer(Integer id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không Thấy Bàn Đặt id: " + id));
 
         if (!"Confirmed".equals(reservation.getStatus())) {
             throw new IllegalStateException("Reservation must be in 'Confirmed' status to check-in.");

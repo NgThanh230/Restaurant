@@ -21,10 +21,6 @@ public class Order {
     @Column(name = "table_id")
     private Long tableId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = true)
-    private User user;
-
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
@@ -49,10 +45,9 @@ public class Order {
         Cancelled
     }
 
-    public Order(Long orderId, Long tableId, User user, BigDecimal totalPrice, String note, OrderStatus orderStatus) {
+    public Order(Long orderId, Long tableId, BigDecimal totalPrice, String note, OrderStatus orderStatus) {
         this.orderId = orderId;
         this.tableId = tableId;
-        this.user = user;
         this.totalPrice = totalPrice;
         this.note = note;
         this.orderStatus = orderStatus;

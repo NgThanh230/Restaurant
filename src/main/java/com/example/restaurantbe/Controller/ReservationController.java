@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -48,12 +49,13 @@ public class ReservationController {
         Reservation updatedReservation = reservationService.updateReservationStatus(id, status);
         return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
     }
-    //xác nhận đặt bàn
-    @PutMapping("/confirm/{reservationId}")
-    public ResponseEntity<Reservation> confirmReservation(@PathVariable Integer reservationId) {
-        Reservation updatedReservation = reservationService.confirmReservation(reservationId);
-        return ResponseEntity.ok(updatedReservation);
+    @PutMapping("/{reservationId}/confirm")
+    public ResponseEntity<?> confirmReservation(@PathVariable Integer reservationId, @RequestBody Map<String, Long> body) {
+        Long tableId = body.get("tableId");
+        Reservation reservation = reservationService.confirmReservation(reservationId, tableId);
+        return ResponseEntity.ok(reservation);
     }
+
     @PatchMapping("/{id}/check-in")
     public ResponseEntity<Reservation> checkInCustomer(@PathVariable Integer id) {
         try {

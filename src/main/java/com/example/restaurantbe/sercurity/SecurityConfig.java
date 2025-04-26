@@ -39,13 +39,7 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/dishes/**").permitAll()
-                        .requestMatchers("/api/reservations/**").permitAll()
-                        .requestMatchers("/api/tables/**").permitAll()
-                        .requestMatchers("/api/payment/**").permitAll()
-                        .requestMatchers("/api/orders/**").permitAll()
-                        .requestMatchers("/api/paypal/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest()
                         .authenticated())
