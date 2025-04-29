@@ -10,7 +10,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
- List<Reservation> findByUserName(String userName);
- List<Reservation> findByTable_TableNumber(String tableNumber);
  List<Reservation> findByStatusAndStartTimeBefore(String status, LocalDateTime time);
 }

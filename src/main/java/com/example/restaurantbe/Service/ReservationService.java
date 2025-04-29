@@ -37,12 +37,6 @@ public class ReservationService {
         return reservationRepository.findById(id).orElse(null);
     }
 
-    public List<Reservation> getReservationsByCustomerName(String customerName) {
-        return reservationRepository.findByUserName(customerName);
-    }
-    public List<Reservation> getReservationsByTableNumber(String tableNumber) {
-        return reservationRepository.findByTable_TableNumber(tableNumber);
-    }
     public Reservation createReservation(ReservationRequestDto requestDto) {
 
         Reservation reservation = new Reservation();
@@ -83,7 +77,7 @@ public class ReservationService {
         }
 
         // Lấy bàn được nhân viên chọn
-        RestaurantTable table = tableRepository.findById(Math.toIntExact(tableId))
+        RestaurantTable table = tableRepository.findById((long) Math.toIntExact(tableId))
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy bàn với ID: " + tableId));
 
         // Kiểm tra trạng thái bàn

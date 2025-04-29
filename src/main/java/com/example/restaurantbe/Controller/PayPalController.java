@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/paypal")
+@RequestMapping("/api/payment/paypal")
 @RequiredArgsConstructor
 public class PayPalController {
 
@@ -111,7 +112,9 @@ public class PayPalController {
                 Order order = orderRepository.findById(localOrderId)
                         .orElseThrow(() -> new RuntimeException("Order không tồn tại"));
 
+                order.setPaymentMethod(Order.PaymentMethod.PAYPAL);
                 order.setOrderStatus(Order.OrderStatus.Completed);
+                order.setPaidAt(LocalDateTime.now());
                 orderRepository.save(order);
 
                 return ResponseEntity.ok(Map.of(
@@ -133,5 +136,11 @@ public class PayPalController {
             ));
         }
     }
-
+    @GetMapping("/paypal/cancel")
+    public ResponseEntity<?> cancelPaypalPayment() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Thanh toán đã bị hủy.",
+                "status", "Cancelled"
+        ));
+    }
 }

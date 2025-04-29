@@ -18,8 +18,9 @@ public class Order {
     @Column(name = "order_id")
     private Long orderId;
 
-    @Column(name = "table_id")
-    private Long tableId;
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private RestaurantTable table;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
@@ -30,9 +31,14 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
 
     @PrePersist
     public void prePersist() {
@@ -44,13 +50,8 @@ public class Order {
         Completed,
         Cancelled
     }
-
-    public Order(Long orderId, Long tableId, BigDecimal totalPrice, String note, OrderStatus orderStatus) {
-        this.orderId = orderId;
-        this.tableId = tableId;
-        this.totalPrice = totalPrice;
-        this.note = note;
-        this.orderStatus = orderStatus;
+    public enum PaymentMethod {
+        CASH, VNPAY, PAYPAL
     }
 
     public Order() {

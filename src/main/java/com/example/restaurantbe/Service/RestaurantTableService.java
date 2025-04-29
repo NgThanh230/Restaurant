@@ -18,7 +18,7 @@ public class RestaurantTableService {
     }
 
     public RestaurantTable getTableById(Integer id) {
-        return tableRepository.findById(id).orElse(null);
+        return tableRepository.findById(Long.valueOf(id)).orElse(null);
     }
 
     public RestaurantTable saveTable(RestaurantTable table) {
@@ -28,6 +28,6 @@ public class RestaurantTableService {
         return tableRepository.findByStatus("Available");
     }
     public void deleteTable(Integer id) {
-        tableRepository.deleteById(id);
+        tableRepository.deleteById(Long.valueOf(id));
     }
 }

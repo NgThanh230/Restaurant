@@ -2,6 +2,7 @@ package com.example.restaurantbe.Controller;
 
 import com.example.restaurantbe.DTO.DishRequest;
 import com.example.restaurantbe.Entity.Dish;
+import com.example.restaurantbe.Repository.DishRepository;
 import com.example.restaurantbe.Service.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -45,17 +46,23 @@ public class DishController {
         return ResponseEntity.ok(newDish);
     }
 
-    // API: Cập nhật món ăn
     @PutMapping("/{id}")
     public ResponseEntity<Dish> updateDish(@PathVariable Long id, @RequestBody Dish updatedDish) {
         try {
             Dish updated = dishService.updateDish(id, updatedDish);
-            return ResponseEntity.ok(updated);
+            System.out.println("Updated dish: " + updated);  // Log updated dish
+            return ResponseEntity.ok(updated);  // Trả về mã 200 với dữ liệu đã cập nhật
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            System.err.println("Error: " + e.getMessage());  // Log lỗi
+            return ResponseEntity.notFound().build();  // Trả về 404 nếu không tìm thấy món ăn
         }
     }
 
+    @PutMapping("/test/{id}")
+    public ResponseEntity<String> testPut(@PathVariable Long id) {
+        Dish dish = dishService.getDishById(id).get();
+        return ResponseEntity.ok("PUT Test OK with id: " + dish);
+    }
     // API: Xóa món ăn
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDish(@PathVariable Long id) {

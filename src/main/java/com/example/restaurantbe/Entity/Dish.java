@@ -49,7 +49,9 @@ public class Dish {
         this.category = category;
 
     }
-
+    public Long getCategoryId() {
+        return this.category != null ? this.category.getCategoryId() : null;
+    }
     public Dish() {
 
     }

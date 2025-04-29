@@ -28,7 +28,7 @@ public class DishService {
 
     // Lấy món ăn theo ID
     public Optional<Dish> getDishById(Long id) {
-        return dishRepository.findByDishId(id);
+        return dishRepository.findById(id);
     }
 
     // Thêm món ăn mới
@@ -40,17 +40,32 @@ public class DishService {
         return dishRepository.save(dish);
     }
 
-    // Cập nhật món ăn
     public Dish updateDish(Long id, Dish updatedDish) {
-        return dishRepository.findByDishId(id).map(dish -> {
+        System.out.println("Updating dish with ID: " + id);
+
+        // Kiểm tra nếu categoryId là null hoặc không hợp lệ
+        if (updatedDish.getCategory() == null || updatedDish.getCategory().getCategoryId() == null) {
+            throw new RuntimeException("Category không thể null");
+        }
+
+        // Tìm kiếm Category bằng categoryId
+        Optional<Category> categoryOpt = categoryRepository.findById(updatedDish.getCategory().getCategoryId());
+        if (!categoryOpt.isPresent()) {
+            throw new RuntimeException("Không tìm thấy Category với ID: " + updatedDish.getCategory().getCategoryId());
+        }
+        Category category = categoryOpt.get();
+
+        // Tiến hành cập nhật món ăn
+        return dishRepository.findById(id).map(dish -> {
             dish.setName(updatedDish.getName());
             dish.setDescription(updatedDish.getDescription());
             dish.setPrice(updatedDish.getPrice());
             dish.setImageUrl(updatedDish.getImageUrl());
-            dish.setCategory(updatedDish.getCategory());
+            dish.setCategory(category);  // Gán Category đã tìm thấy vào món ăn
             return dishRepository.save(dish);
-        }).orElseThrow(() -> new RuntimeException("Không Tìm Thấy Món ăn với ID " + id));
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy món ăn với ID: " + id));
     }
+
 
     // Xóa món ăn
     public void deleteDish(Long id) {

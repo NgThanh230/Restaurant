@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/vnpay")
+@RequestMapping("/api/payment/vnpay")
 public class VNPayController {
 
     private final VnPayService vnPayService;

@@ -103,7 +103,9 @@ public class VnPayService {
                 // Thành công → cập nhật đơn hàng
                 Order order = orderRepository.findById(Long.parseLong(orderId))
                         .orElseThrow(() -> new RuntimeException("Không Tìm Thấy Order"));
+                order.setPaymentMethod(Order.PaymentMethod.VNPAY);
                 order.setOrderStatus(Order.OrderStatus.Completed);
+                order.setPaidAt(LocalDateTime.now());
                 orderRepository.save(order);
 
                 return ResponseEntity.ok(Map.of(

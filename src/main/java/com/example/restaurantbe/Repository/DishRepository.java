@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Long> {
-    Optional<Dish> findByDishId(Long dishId);
+    Optional<Dish> findById(Long dishId);
     boolean existsByCategory(Category category);
 }

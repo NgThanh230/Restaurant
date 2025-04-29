@@ -43,5 +43,5 @@ public class Reservation {
     private String notes;
 
     @Column(name = "status")
-    private String status; // Pending / Confirmed / Cancelled
+    private String status;
 }
