@@ -3,12 +3,14 @@ package com.example.restaurantbe.Controller;
 import com.example.restaurantbe.Entity.Order;
 import com.example.restaurantbe.Repository.OrderRepository;
 import com.example.restaurantbe.sercurity.PayPalConfig;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,24 +30,23 @@ public class PayPalController {
     @Value("${paypal.cancel-url}")
     private String cancelUrl;
 
-    /**
-     * Tạo order PayPal từ Order trong DB
-     */
     @PostMapping("/create-order")
     public ResponseEntity<?> createOrderFromDb(@RequestParam Long orderId) {
-        // Tìm đơn hàng trong database
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order không tồn tại với ID: " + orderId));
         if (order.getOrderStatus() == Order.OrderStatus.Completed) {
-            throw new IllegalStateException("Order Này Đã Được Thanh Toán");
+            throw new IllegalStateException("Order này đã được thanh toán");
         }
+
         String accessToken = payPalConfig.getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
+
         // Format số tiền đúng chuẩn PayPal
         String formattedPrice = order.getTotalPrice().setScale(2, RoundingMode.HALF_UP).toString();
+
         // Payload gửi cho PayPal
         Map<String, Object> orderData = Map.of(
                 "intent", "CAPTURE",
@@ -57,7 +58,7 @@ public class PayPalController {
                 )),
                 "application_context", Map.of(
                         "return_url", returnUrl + "?orderId=" + order.getOrderId(),
-                        "cancel_url", cancelUrl
+                        "cancel_url", cancelUrl + "?orderId=" + order.getOrderId()
                 )
         );
 
@@ -82,9 +83,12 @@ public class PayPalController {
                 "localOrderId", order.getOrderId()
         ));
     }
+
+
     @GetMapping("/success")
-    public ResponseEntity<?> capturePayment(@RequestParam("token") String paypalOrderId,
-                                            @RequestParam("orderId") Long localOrderId) {
+    public void capturePayment(@RequestParam("token") String paypalOrderId,
+                               @RequestParam("orderId") Long localOrderId,
+                               HttpServletResponse response) throws IOException {
         String accessToken = payPalConfig.getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
@@ -96,15 +100,19 @@ public class PayPalController {
 
         try {
             // Gọi PayPal để capture đơn hàng
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map> apiResponse = restTemplate.exchange(
                     "https://api-m.sandbox.paypal.com/v2/checkout/orders/" + paypalOrderId + "/capture",
                     HttpMethod.POST,
                     request,
                     Map.class
             );
 
-            // Kiểm tra trạng thái thanh toán
-            Map responseBody = response.getBody();
+            Map responseBody = apiResponse.getBody();
+
+            if (responseBody == null || !responseBody.containsKey("status")) {
+                throw new RuntimeException("Không nhận được trạng thái từ PayPal");
+            }
+
             String status = (String) responseBody.get("status");
 
             if ("COMPLETED".equalsIgnoreCase(status)) {
@@ -116,31 +124,36 @@ public class PayPalController {
                 order.setOrderStatus(Order.OrderStatus.Completed);
                 order.setPaidAt(LocalDateTime.now());
                 orderRepository.save(order);
-
-                return ResponseEntity.ok(Map.of(
-                        "message", "Thanh toán thành công!",
-                        "orderId", order.getOrderId(),
-                        "status", order.getOrderStatus()
-                ));
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                        "message", "Thanh toán chưa hoàn tất",
-                        "paypalStatus", status
-                ));
             }
 
+            // Gửi HTML trả về với JavaScript để đóng trang
+            response.setContentType("text/html");
+            response.getWriter().write("<html><body><script type='text/javascript'>window.close();</script></body></html>");
+            response.setStatus(HttpServletResponse.SC_OK);
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "message", "Có lỗi xảy ra khi capture đơn hàng",
-                    "error", e.getMessage()
-            ));
+            // Nếu có lỗi, chỉ cần trả về mã lỗi và đóng trang
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("<html><body><script type='text/javascript'>window.close();</script></body></html>");
         }
     }
+
+
+
+
     @GetMapping("/paypal/cancel")
-    public ResponseEntity<?> cancelPaypalPayment() {
-        return ResponseEntity.ok(Map.of(
-                "message", "Thanh toán đã bị hủy.",
-                "status", "Cancelled"
-        ));
+    public void paypalCancel(@RequestParam Long orderId, HttpServletResponse response) throws IOException {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Trả về trang thông báo hủy thanh toán
+        String html = "<html><body><script>"
+                + "window.opener.postMessage('payment_cancel', '*');"
+                + "window.close();"
+                + "</script></body></html>";
+
+        response.setContentType("text/html");
+        response.getWriter().write(html);
     }
+
 }

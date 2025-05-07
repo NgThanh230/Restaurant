@@ -1,5 +1,6 @@
 package com.example.restaurantbe.Controller;
 
+import com.example.restaurantbe.DTO.OrderBillResponse;
 import com.example.restaurantbe.DTO.OrderRequest;
 import com.example.restaurantbe.DTO.OrderResponse;
 import com.example.restaurantbe.Entity.Dish;
@@ -34,6 +35,16 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
+    @GetMapping("/bills")
+    public ResponseEntity<List<OrderBillResponse>> getAllOrderBills() {
+        return ResponseEntity.ok(orderService.getAllOrderBills());
+    }
+
+    @GetMapping("/{id}/bill")
+    public ResponseEntity<OrderBillResponse> getOrderBill(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderBill(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         OrderResponse response = orderService.getOrderById(id);
@@ -46,26 +57,36 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    //thanh toán tiền mặt
     @PostMapping("/{id}/pay-cash")
     public ResponseEntity<?> payCash(@PathVariable Long id) {
+        // Tìm đơn hàng trong cơ sở dữ liệu
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new RuntimeException("Order không tồn tại"));
 
+        // Kiểm tra nếu đơn hàng đã được thanh toán hoặc đã bị hủy
         if (order.getOrderStatus() != Order.OrderStatus.Pending) {
-            return ResponseEntity.badRequest().body("Order has already been paid or cancelled.");
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", "Order đã được thanh toán hoặc đã bị hủy.",
+                    "orderId", order.getOrderId()
+            ));
         }
 
+        // Cập nhật thông tin thanh toán tiền mặt
         order.setPaymentMethod(Order.PaymentMethod.CASH);
         order.setOrderStatus(Order.OrderStatus.Completed);
         order.setPaidAt(LocalDateTime.now());
+
+        // Lưu lại trạng thái đơn hàng sau khi cập nhật
         orderRepository.save(order);
 
+        // Trả về kết quả sau khi thanh toán
         return ResponseEntity.ok(Map.of(
-                "message", "Thanh toán tiền mặt thành công",
+                "message", "Thanh toán tiền mặt thành công.",
                 "orderId", order.getOrderId(),
-                "totalPrice", order.getTotalPrice()
+                "totalPrice", order.getTotalPrice(),
+                "paidAt", order.getPaidAt()
         ));
     }
+
 
 }

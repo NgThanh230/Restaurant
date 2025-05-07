@@ -1,12 +1,11 @@
 package com.example.restaurantbe.Service;
 
-import com.example.restaurantbe.DTO.OrderItemRequest;
-import com.example.restaurantbe.DTO.OrderRequest;
-import com.example.restaurantbe.DTO.OrderResponse;
+import com.example.restaurantbe.DTO.*;
 import com.example.restaurantbe.Entity.Dish;
 import com.example.restaurantbe.Entity.Order;
 import com.example.restaurantbe.Entity.RestaurantTable;
-import com.example.restaurantbe.Entity.User;
+
+
 import com.example.restaurantbe.Repository.DishRepository;
 import com.example.restaurantbe.Repository.OrderRepository;
 import com.example.restaurantbe.Repository.RestaurantTableRepository;
@@ -17,8 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -38,11 +39,8 @@ public class OrderService {
         return orderRepository.findAll();
     }
     public Order createOrder(OrderRequest orderRequest) {
-        RestaurantTable table = restaurantTableRepository.findById(orderRequest.getTableId())
-                .orElseThrow(() -> new RuntimeException("Table not found"));
         // Tạo đối tượng Order
         Order order = new Order();
-        order.setTable(table);
         order.setNote(orderRequest.getNote());
         order.setOrderStatus(Order.OrderStatus.Pending);
         order.setCreatedAt(LocalDateTime.now());
@@ -69,6 +67,73 @@ public class OrderService {
 
         return totalPrice;
     }
+    public OrderBillResponse getOrderBill(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy order"));
+
+        // Chuyển thông tin món ăn
+        List<OrderItemDTO> items = order.getOrderItems().stream().map(item -> {
+            OrderItemDTO dto = new OrderItemDTO();
+            dto.setDishName(item.getDish().getName());
+            dto.setQuantity(item.getQuantity());
+            dto.setPrice(item.getPrice());
+            dto.setTotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            return dto;
+        }).collect(Collectors.toList());
+
+        // Tính tổng tiền
+        BigDecimal totalPrice = items.stream()
+                .map(OrderItemDTO::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Tạo response
+        OrderBillResponse response = new OrderBillResponse();
+        response.setOrderId(order.getOrderId());
+        response.setTotalPrice(totalPrice);
+        response.setNote(order.getNote());
+        response.setOrderStatus(order.getOrderStatus().name());
+        response.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
+        response.setCreatedAt(order.getCreatedAt());
+        response.setPaidAt(order.getPaidAt());
+        response.setItems(items);
+
+        return response;
+    }
+
+    public List<OrderBillResponse> getAllOrderBills() {
+        List<Order> orders = orderRepository.findAll().stream()
+                .filter(order -> order.getOrderStatus() == Order.OrderStatus.Completed)
+                .sorted(Comparator.comparing(Order::getPaidAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        return orders.stream().map(order -> {
+            List<OrderItemDTO> items = order.getOrderItems().stream().map(item -> {
+                OrderItemDTO dto = new OrderItemDTO();
+                dto.setDishName(item.getDish().getName());
+                dto.setQuantity(item.getQuantity());
+                dto.setPrice(item.getPrice());
+                dto.setTotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+                return dto;
+            }).collect(Collectors.toList());
+
+            BigDecimal totalPrice = items.stream()
+                    .map(OrderItemDTO::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            OrderBillResponse response = new OrderBillResponse();
+            response.setOrderId(order.getOrderId());
+            response.setTotalPrice(totalPrice);
+            response.setNote(order.getNote());
+            response.setOrderStatus(order.getOrderStatus().name());
+            response.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
+            response.setCreatedAt(order.getCreatedAt());
+            response.setPaidAt(order.getPaidAt());
+            response.setItems(items);
+
+            return response;
+        }).collect(Collectors.toList());
+    }
+
 
 
     public OrderResponse getOrderById(Long id) {

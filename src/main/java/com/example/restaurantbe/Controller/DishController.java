@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/dishes")
+@RequestMapping(value = "/api/dishes")
 public class DishController {
 
     @Autowired

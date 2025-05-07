@@ -8,11 +8,13 @@ import com.example.restaurantbe.Service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,7 +38,7 @@ public class ReservationController {
             requestDto.setUserId(userId);
         }
         Reservation reservation = reservationService.createReservation(requestDto);
-        notifyNewReservation("Có đơn đặt bàn mới!");
+        sendNotification("Có đơn đặt bàn mới!");
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
@@ -77,21 +79,33 @@ public class ReservationController {
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
 
+        try {
+            // Gửi test kết nối với encoding UTF-8
+            emitter.send(SseEmitter.event()
+                    .name("connected")
+                    .data("Kết nối thành công!", MediaType.TEXT_PLAIN));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return emitter;
     }
 
-    // Hàm gọi khi có đặt bàn mới từ Flutter
-    public void notifyNewReservation(String message) {
-        List<SseEmitter> deadEmitters = new CopyOnWriteArrayList<>();
+    public void sendNotification(String message) {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+
         for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("newReservation")
-                        .data(message));
-            } catch (IOException e) {
+                        .name("reservation")
+                        .data(message, MediaType.TEXT_PLAIN)); // dùng TEXT_PLAIN để giữ UTF-8
+            } catch (Exception e) {
                 deadEmitters.add(emitter);
             }
         }
+
         emitters.removeAll(deadEmitters);
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.restaurantbe.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class OrderItem {
     private Long orderItemId;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false)
     private Order order;
 
@@ -32,13 +34,6 @@ public class OrderItem {
 
     @Column(name = "note")
     private String note;
-    
-    public OrderItem( Order order, Dish dish, Integer quantity, BigDecimal price) {
-        this.order = order;
-        this.dish = dish;
-        this.quantity = quantity;
-        this.price = price;
-    }
 
     public OrderItem() {
 

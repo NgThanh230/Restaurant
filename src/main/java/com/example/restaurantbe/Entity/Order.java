@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -19,7 +20,7 @@ public class Order {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "table_id")
+    @JoinColumn(name = "table_id", nullable = true)
     private RestaurantTable table;
 
     @Column(name = "total_price", nullable = false)
@@ -39,6 +40,12 @@ public class Order {
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user; // Thêm trường user
 
     @PrePersist
     public void prePersist() {
